@@ -1,5 +1,8 @@
 import { Component } from 'react';
 import { v4 as generate } from 'uuid';
+import { ContactList } from './ContactList/ContactList';
+import { FilterContacts } from './FilterContacts/FilterContacts';
+
 export default class InputForm extends Component {
   state = {
     contacts: [
@@ -20,9 +23,8 @@ export default class InputForm extends Component {
   };
   handleSubmit = e => {
     e.preventDefault();
-    const s = this.state.contacts.map(e=> e.name)
-    if (s.includes(e.target.name.value)){return alert(`${e.target.name.value} says hello from chat`)}
-    this.contactList();
+    const newName = this.state.contacts.map(e=> e.name)
+    if (newName.includes(e.target.name.value)){return alert(`${e.target.name.value} says hello from chat`)}
     this.createContact();
   }
   createContact = () => {
@@ -35,13 +37,13 @@ export default class InputForm extends Component {
     this.setState({contacts: [...contacts, singleContact]})
   }
   filterContacts = (e) => {
-    if (e){this.setState({filter:e.target.value.trim()})}
+    // if (e){this.setState({filter:e.target.value.trim()})}
     const {contacts,filter} = this.state
-    return this.contactList(contacts.filter((e) => e.name.toLowerCase().includes(filter)))
+    return contacts.filter((e) => e.name.toLowerCase().includes(filter))
   }
-  contactList = (datas) => {
-    if (!datas){return}
-    return datas.map(e => <li key={e.id}>{e.name} : {e.number} <button onClick={()=>this.deleteContact(e.id)}>Delete</button></li>)    
+
+  changiF1ilter = ({target}) => {
+    this.setState({filter:target.value})
   }
   deleteContact = (id) => {
    this.setState((prevState)=>({contacts:prevState.contacts.filter(e=>e.id !==id)}))
@@ -49,7 +51,7 @@ export default class InputForm extends Component {
   render() {
 
     return (
-      <>
+        <>
         <form onSubmit={this.handleSubmit}>
           <h1>Phonebook</h1>
           <h2>Name</h2>
@@ -62,7 +64,7 @@ export default class InputForm extends Component {
             onChange={this.handleChange}
           />
           <h2>Number</h2>
-          <input
+         <input
             type="tel"
             name="number"
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -71,18 +73,14 @@ export default class InputForm extends Component {
             onChange={this.handleChange}
           />
           <button type="submit">Add contact</button>
-        </form>
-          <h2>Find contacts by name</h2>
-            <input
-            type="text"
-            name="filter"
-            placeholder="start typing"
-            onChange={this.filterContacts}
-            />
-          <h3>Contacts</h3>
-          <ul>{this.filterContacts()}</ul>
+          </form>
           
-      </>
+          <FilterContacts filtered={this.changiF1ilter} />
+          
+          <h3>Contacts</h3>
+          <ContactList filteredContacts={this.filterContacts()} deleteContact={this.deleteContact}/>
+        </>
+
     );
   }
 }
